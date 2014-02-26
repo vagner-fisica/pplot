@@ -26,6 +26,4 @@ class pplot:
 
 x = pplot()
 fName = 'documentation.dat'
-
 x.saveDoc(fName)
-
