@@ -1,44 +1,30 @@
 from pylab import *
 import matplotlib.pyplot as plt
-import os
+import os, trim
+
+doc = \
+		'-------------------------------------------\n'\
+		'pplot class\n'\
+		'Developed by Vagner Bessa.\n'\
+		'Contact: vagner.fisica@gmail.com.\n\n'\
+		'Check README file for main informations.\n\n'\
+		'This module has the MIT License (MIT)\nCopyright (c) 2014 Vagner Bessa.\n'\
+		'-------------------------------------------\n'
 
 class pplot:
 	"""pplot class: developed by Vagner Bessa. Contact: vagner.fisica@gmail.com. For more information, use 'showDoc()' method."""
 	def showDoc(self):
-		doc = 
-		'pplot class'\
-		'developed by Vagner Bessa.'\
-		'			  Contact: vagner.fisica@gmail.com.' \
-		'
-		'
-		return trim(doc)
-
-def trim(docstring):
-    if not docstring:
-        return ''
-    # Convert tabs to spaces (following the normal Python rules)
-    # and split into a list of lines:
-    lines = docstring.expandtabs().splitlines()
-    # Determine minimum indentation (first line doesn't count):
-    indent = sys.maxint
-    for line in lines[1:]:
-        stripped = line.lstrip()
-        if stripped:
-            indent = min(indent, len(line) - len(stripped))
-    # Remove indentation (first line is special):
-    trimmed = [lines[0].strip()]
-    if indent < sys.maxint:
-        for line in lines[1:]:
-            trimmed.append(line[indent:].rstrip())
-    # Strip off trailing and leading blank lines:
-    while trimmed and not trimmed[-1]:
-        trimmed.pop()
-    while trimmed and not trimmed[0]:
-        trimmed.pop(0)
-    # Return a single string:
-    return '\n'.join(trimmed)
+			print trim.trim(doc)
+	def saveDoc(self,fName):
+		if type(fName) is str:
+			out = open(fName,"w")
+			out.write(trim.trim(doc))
+		else:
+			out = open("documentation.txt","w")
+			out.write(trim.trim(doc))			
 
 
-#x = pplot()
-#print x.showDoc()
+x = pplot()
+fName = 'documentation.dat'
+x.saveDoc(fName)
 
