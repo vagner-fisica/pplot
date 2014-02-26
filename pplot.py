@@ -25,66 +25,81 @@ class pplot:
 	fig = plt.figure(figsize=(6,6), dpi=80)
 	frameDim = [0.1,.1,.8,.8]
 	ax = fig.add_axes(frameDim)
+	yLabel = r'$cos(\theta)$'
 	
 	#----------------------		
-	def __init__(self, dFolder, pFolder):
+	def __init__(self, dFolder = "dataFolder", pFolder = "plotsFolder"):
 		if type(dFolder) is str:
-			pth = os.path.join(pplot.cwd,dFolder)
+			pth = os.path.join(self.cwd,dFolder)
 			if os.path.exists(pth):
 				print 'WARNING: Folder \'%s\' already exists.' %(dFolder)
 			else:
 				os.mkdir(dFolder)
-			dataFolder = dFolder
+			self.dataFolder = dFolder
 		else:
-			pth = os.path.join(pplot.cwd,pplot.dataFolder)
+			pth = os.path.join(self.cwd,self.dataFolder)
 			if os.path.exists(pth):
-				print 'WARNING: Folder \'%s\' already exists.' %(pplot.dataFolder)
+				print 'WARNING: Folder \'%s\' already exists.' %(self.dataFolder)
 			else:
-				os.mkdir(pplot.dataFolder)
+				os.mkdir(self.dataFolder)
 		if type(pFolder) is str:
-			pth = os.path.join(pplot.cwd,pFolder)
+			pth = os.path.join(self.cwd,pFolder)
 			if os.path.exists(pth):
 				print 'WARNING: Folder \'%s\' already exists.' %(pFolder)
 			else:
 				os.mkdir(pFolder)
-			plotsFolder = pFolder
+			self.plotsFolder = pFolder
 		else:
-			pth = os.path.join(pplot.cwd,pplot.plotsFolder)
+			pth = os.path.join(self.cwd,self.plotsFolder)
 			if os.path.exists(pth):
-				print 'WARNING: Folder \'%s\' already exists.' %(pplot.plotsFolder)
+				print 'WARNING: Folder \'%s\' already exists.' %(self.plotsFolder)
 			else:
-				os.mkdir(pplot.plotsFolder)
-				
+				os.mkdir(self.plotsFolder)
+
+	#----------------------				
+	def plotfname(self,f):
+		f = os.path.join(self.plotsFolder,f)
+		return f	
+	def datafname(self,f):
+		f = os.path.join(self.dataFolder,f)
+		return f				
 	#----------------------
 	def plotXY(self,fName = None,SHOW = False):
 		if fName is None:
-			print 'Ploting with \'sampledata.dat\''
+		
+			dataname = self.datafname('sampledataXY.dat')
+			plotname = self.plotfname("sampleplotXY.png")
+			
+			print "Ploting with \'%s\'" %(dataname)
+			
 			x = linspace(-2*pi,2*pi,100,endpoint=True)
 			y = cos(x)
 			
 			data = np.array(zip(x,y),dtype=dtype)
-			np.savetxt('sampledata.dat',data,delimiter = '\t',newline='\n')
+			np.savetxt(dataname,data,delimiter = '\t',newline='\n')
 			
-
-			pplot.ax.plot(x,y,label = r'$cos(\theta)$', color='#025167', lw = 2.0)
-			pplot.ax.legend(loc = 3)
+			self.ax.plot(x,y,label = self.yLabel, color='#025167', lw = 2.0)
+			self.ax.legend(loc = 3)
 
 			xlim(x.min(),x.max())
 
 			xticks = linspace(-6,6,5,endpoint=True)
-			pplot.ax.set_xticks(xticks)
+			self.ax.set_xticks(xticks)
 
 			ylim(-1.0,1.0)
 
-			pplot.ax.set_xlabel(r'$\theta$', fontsize = 18)
-			pplot.ax.set_ylabel(r'$y$', fontsize = 18)
-			pplot.ax.set_title('Title')
-
-			pplot.fig.savefig("sampleplotXY.png",dpi=72)
-
+			self.ax.set_xlabel(r'$\theta$', fontsize = 18)
+			self.ax.set_ylabel(r'$y$', fontsize = 18)
+			self.ax.set_title('Title')
+			
+			
+			self.fig.savefig(plotname,dpi=72)
+			
+			print "Plot saved at \'%s\'" %(plotname)
+			
 			if SHOW:
 				show()		
-			
+				
 	#----------------------				
 	def showDoc(self):
 		print trim.trim(doc)
@@ -94,7 +109,7 @@ class pplot:
 		out = open("documentation.txt","w")
 		out.write(trim.trim(doc))			
 
-plot = pplot(12,"pFolder")
-plot.plotXY()
+#plot = pplot()
+#plot.plotXY(SHOW = True)
 #fName = 'documentation.dat'
 #x.saveDoc(fName)
