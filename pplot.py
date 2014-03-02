@@ -7,6 +7,7 @@ doc = open('documentation.txt','r').read()
 def lzeros(nzeros, idx):
 	s = ("%0" + str(nzeros) + "d")  % (idx)
 	return s
+	
 class pplot:
 	#----------------------
 	"""pplot class: developed by Vagner Bessa. Contact: vagner.fisica@gmail.com. For more information, use 'showDoc()' method or saveDoc() and check documentation.txt file."""
@@ -15,17 +16,18 @@ class pplot:
 	dataFolder = "dataFolder"
 	plotsFolder = "plotsFolder"
 	cwd = os.getcwd()
+	cwdls = os.listdir(cwd)
 	
-	xDimPLot = 6
-	yDimPlot = 6
+	xDimPLot = 8
+	yDimPlot = xDimPLot
 	fig = plt.figure(figsize = (xDimPLot,yDimPlot), dpi = 80)
 	frameDim = [0.1,.1,.8,.8]
 	pXY = fig.add_axes(frameDim)
 	yLabel = r'$y(x)$'
 	xLabel = r'$x$'
 	
-	dataname = 'dataname.dat'
-	plotname = 'sampleplotXY.png'
+	dataname = 'data.dat'
+	plotname = 'plot.png'
 	
 	X = []
 	Y = []
@@ -36,7 +38,12 @@ class pplot:
 	
 	matrix = []
 	
-	colorDict = {'pblue':'#025167'}
+	colourPallete = {'colour': '#025167',\
+	'pblue':'#624cb8',\
+	'pred':'#bf5272',\
+	'pyellow':'#afc558',\
+	'pgreen' : '#5fcbab'\
+	}
 	
 	#----------------------		
 	def __init__(self, dFolder = "dataFolder", pFolder = "plotsFolder"):
@@ -96,29 +103,23 @@ class pplot:
 		np.savetxt(dataname,data,delimiter = '\t',newline='\n')	
 
 	#----------------------		
-	def sampleplotXY(self):
-		"""Plot with a sample data: y(x) = cos(x) in range [-2Pi,2Pi].
+	def loadXYdata(self,fName):
+		"""A 2D array of data is loaded into member XY.
 		"""
-		self.dataname = self.datafname('sampledataXY.dat')
-		self.plotname = self.plotfname('sampleplotXY.png')
-		
-		print "Ploting with \'%s\'" %(dataname)
-		
-		self.X = linspace(-2*pi,2*pi,100,endpoint=True)
-		self.Y = cos(x)
-		
-		self.XY = np.array(zip(x,y),dtype=dtype)
-		
-		self.saveData(dataname,self.XY)
-		
-		self.pXY.plot(self.X, self.X, label = self.yLabel, color = self.colorDict['pblue'], lw = 2.0)
-		
-		self.pXY.legend(loc = 3)
-
+		try:
+			self.XY = np.loadtxt(open(fName))
+		except:
+			print 'ERROR: failed reading file \'%s\'. Make '\
+				  'sure the column is tab separated.'\
+				  %(fName)
+				  
+	#----------------------		
+	def makeXYFrame(self,x,y):
+		"""Default frame for 2D-XY plot.
+		"""
+		from math import floor, ceil
 		xlim(x.min(),x.max())
 		ylim(y.min(),y.max())
-		
-		from math import floor, ceil
 		xini = int(ceil(x.min()))
 		xend = int(floor(x.max()))
 		yini = int(ceil(y.min()))
@@ -127,25 +128,72 @@ class pplot:
 		yticks = linspace(yini,yend,5,endpoint=True)
 		self.pXY.set_xticks(xticks)
 		self.pXY.set_yticks(yticks)
-
 		self.pXY.set_xlabel(self.xLabel, fontsize = 18)
-		self.pXY.set_ylabel(self.yLabel, fontsize = 18)
+		self.pXY.set_ylabel(self.yLabel, fontsize = 18)		
+
+	#----------------------	
+	def plotxy(self):
+		self.pXY.plot(self.X, self.Y, label = self.yLabel, color = self.colourPallete['colour'], lw = 2.0)
+		self.makeXYFrame(self.X,self.Y)
+		
+	#----------------------		
+	def sampleplotXY(self):
+		"""Plot with a sample data: y(x) = cos(x) in range [-2Pi,2Pi].
+		"""
+		self.dataname = self.datafname('sampledataXY.dat')
+		self.plotname = self.plotfname('sampleplotXY.png')
+		
+		print "Ploting with \'%s\'" %(self.dataname)
+		
+		self.X = linspace(-2*pi,2*pi,100,endpoint=True)
+		self.Y = cos(self.X)	
+		self.XY = np.array(zip(self.X,self.Y),dtype=dtype)
+		self.saveData(self.dataname,self.XY)
+		
 		self.pXY.set_title('Sample data')
 		
+		self.plotxy()
 		
-		self.fig.savefig(plotname, dpi = 100)
+		self.fig.savefig(self.plotname, dpi = 80)
 		
-		print "Plot saved at \'%s\'" %(plotname)	
+		print "Plot saved at \'%s\'" %(self.plotname)	
 						
 	#----------------------
-	def plotXY(self,fName = None,SHOW = False):
+	def plotXY(self,fName = None,title = None,SHOW = False,SAVE = False):
 		"""If no data is supplied, the sampleplotXY() method is executed.
 		"""
 		if fName is None:
 			self.sampleplotXY()
 			if SHOW:
 				show()
-				
+		elif fName in self.cwdls:
+			if os.path.isfile(fName):
+				self.loadXYdata(fName)
+				xy = np.column_stack(self.XY)
+				self.X = xy[0]
+				self.Y = xy[1]
+				self.plotxy()
+				if SHOW:
+					show()
+				if type(title) is str:
+					self.pXY.set_title(title)
+				if SAVE:
+					self.fig.savefig(self.plotname, dpi = 80)
+		elif os.path.isfile(fName):
+			self.loadXYdata(fName)
+			self.loadXYdata(fName)
+			xy = np.column_stack(self.XY)
+			self.X = xy[0]
+			self.Y = xy[1]
+			self.plotxy()
+			if SHOW:
+				show()
+			if type(title) is str:
+				self.pXY.set_title(title)
+			if SAVE:
+				self.fig.savefig(self.plotname, dpi = 80)
+		else:
+			print 'ERROR: file \'%\' not found. Make sure you\'ve supplied full path or file is in current working dir:\n\'%s\''%(fName,cwd)		  
 	#----------------------				
 	def showDoc(self):
 		"""Print pplot's doc string
@@ -163,9 +211,9 @@ class pplot:
 		out = open("documentation.txt","w")
 		out.write(trim.trim(doc))			
 
-a = pplot()
-#a.plotXY(SHOW = True)
-a.doc(a.showDoc().__doc__)
+#a = pplot()
+#a.plotXY("Free_Field.dat",SHOW = True)
+#a.doc(a.showDoc().__doc__)
 
 
 
